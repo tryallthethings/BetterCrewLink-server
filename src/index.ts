@@ -3,7 +3,6 @@ import { Server } from 'http';
 import socketIO from 'socket.io';
 import Tracer from 'tracer';
 import morgan from 'morgan';
-import publicIp from 'public-ip';
 
 const port = parseInt(process.env.PORT || '9736');
 
