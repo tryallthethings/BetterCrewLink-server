@@ -4,7 +4,7 @@ import socketIO from 'socket.io';
 import Tracer from 'tracer';
 import morgan from 'morgan';
 import publicIp from 'public-ip';
-import iceConfig from './ice';
+import peerConfig from './peer-config';
 
 const port = parseInt(process.env.PORT || '9736');
 
@@ -42,7 +42,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 	logger.info("Total connected: %d", connectionCount);
 	let code: string | null = null;
 
-	socket.emit('iceConfig', iceConfig);
+	socket.emit('peerConfig', peerConfig);
 
 	socket.on('join', (c: string, id: number) => {
 		if (typeof c !== 'string' || typeof id !== 'number') {
