@@ -107,8 +107,8 @@ yarn start
 
 ### Fixing Connection Issues
 
-CrewLink-server should work out of the box for most people. You may come across people who are unable to hear other
-people in the game, no matter what they try. This could be because of a NAT or firewall that is preventing peer to peer
+CrewLink-server should work out of the box for most people. You may, however, come across people who are unable to hear 
+other people, no matter what they try. This could be because of a NAT or firewall that is preventing peer to peer
 connections. In this case you may want to set up your own relay server to act as a middleman for your voice traffic.
 CrewLink needs a specific type of server for this called a TURN server. As of yet CrewLink does not come with one by
 default. 
@@ -118,7 +118,7 @@ Provided example as a template. A good, open source TURN server implementation i
 
 ### Protecting Player IP Addresses
 A relay server may also be desirable in case you want to prevent CrewLink players from detecting the IP addresses of
-everyone in the same Among Us room. Check the section above on how to set one up.
+everyone in the same Among Us room using CrewLink. Check the section above on how to set one up.
 
 <!-- CONTRIBUTING -->
 ## Contributing
