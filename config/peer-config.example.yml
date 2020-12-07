@@ -26,7 +26,7 @@ stunServers:
 #     TURN servers are the best way to guarantee that everyone can use CrewLink. By default CrewLink comes with no TURN
 #     servers, so you will need to set one up. Beware that TURN servers take up a lot of bandwidth as they have to relay
 #     ALL traffic between peers that use them.
-turnServers:
-  - url: 'turn:example.com'
-    username: 'TurnUsername'
-    credential: 'TurnPassword'
+# turnServers:
+#   - url: 'turn:example.com'
+#     username: 'TurnUsername'
+#     credential: 'TurnPassword'
