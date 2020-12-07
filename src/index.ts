@@ -26,9 +26,9 @@ app.set('view engine', 'pug')
 app.use(morgan('combined'))
 app.use(express.static('offsets'))
 let connectionCount = 0;
-let address = 'loading...';
 
 app.get('/', (req, res) => {
+	let address =  req.protocol + '://' + req.headers.host;
 	res.render('index', { connectionCount, address });
 })
 
@@ -94,6 +94,5 @@ io.on('connection', (socket: socketIO.Socket) => {
 
 server.listen(port);
 (async () => {
-	address = `http://${await publicIp.v4()}:${port}`;
-	logger.info('CrewLink Server started: %s', address);
+	logger.info('CrewLink Server started: %s', `http://127.0.0.1:${port}`);
 })();
