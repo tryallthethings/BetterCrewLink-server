@@ -5,7 +5,7 @@ import Tracer from 'tracer';
 import morgan from 'morgan';
 import publicIp from 'public-ip';
 
-const port = parseInt(process.env.PORT || '9736');
+const port = process.env.PORT || '9736';
 
 const logger = Tracer.colorConsole({
 	format: "{{timestamp}} <{{title}}> {{message}}"
