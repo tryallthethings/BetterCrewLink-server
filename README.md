@@ -113,8 +113,8 @@ connections. In this case you may want to set up your own relay server to act as
 CrewLink needs a specific type of server for this called a TURN server. As of yet CrewLink does not come with one by
 default. 
 
-You can configure a turn server by creating a file called ``peer-config.yml`` in the config folder. Use the
-Provided example as a template. A good, open source TURN server implementation is [Coturn](https://github.com/coturn/coturn).
+You can configure a TURN server by creating a file called ``peer-config.yml`` in the config folder. Use the
+provided example as a template. A good, open source TURN server implementation is [Coturn](https://github.com/coturn/coturn).
 
 ### Protecting Player IP Addresses
 A relay server may also be desirable in case you want to prevent CrewLink players from detecting the IP addresses of
