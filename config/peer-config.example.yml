@@ -13,10 +13,10 @@
 forceRelayOnly: false
 
 # STUN servers
-# A part of establishing peer to peer connections is finding out the IP address of each participant and letting people 
-# connect directly to each other. A stun server, simply put, allows you to find out your public IP address and port, 
-# which is something other participants need to know in order to connect to you. By default CrewLink will use one of
-# Google's STUN servers.
+#     A part of establishing peer to peer connections is finding out the IP address of each participant and letting people 
+#     connect directly to each other. A stun server, simply put, allows you to find out your public IP address and port, 
+#     which is something other participants need to know in order to connect to you. By default CrewLink will use one of
+#     Google's STUN servers.
 stunServers:
   - url: 'stun:stun.l.google.com:19302'
 
