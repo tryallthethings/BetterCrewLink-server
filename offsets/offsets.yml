@@ -139,14 +139,14 @@ x86:
       
     signatures: 
         innerNetClient:
-            sig: "74 7F 83 7E 2C 00 A1 ? ? ? ? 8B 40 5C"
-            patternOffset: 0x7
+            sig: "8B 0D ? ? ? ? 83 C4 08 8B F0 8B 49 5C 8B 11 85 D2 74 15 8B 4D 0C 8B 49 18 8B 01 50 56 52 8B 00 FF D0"
+            patternOffset: 0x2
             addressOffset: 0x0
         meetingHud:
-            sig: "A1 ? ? ? ? 6A 00 6A 00 6A 63 8B 40 5C FF 30"
+            sig: "A1 ? ? ? ? 56 8B 40 5C 8B 30 A1 ? ? ? ? F6 80 ? ? ? ? ? 74 0F 83 78 74 00 75 09 50 E8 ? ? ? ? 83 C4 04 6A 00 56 E8 ? ? ? ? 83 C4 08 84 C0 0F 85 ? ? ? ? 57 8B 7D 0C 6A 00 57 FF 35 ? ? ? ? E8 ? ? ? ? 8B 0D ? ? ? ? 83 C4 0C 8B F0 F6 81 ? ? ? ? ?"
             patternOffset: 0x1
             addressOffset: 0x0
         gameData:
-            sig: "8B 0D ? ? ? ? 6A 00 6A 01 6A 9C 8B 49 5C 89 01 A1 ? ? ? ? 8B 40 5C"
+            sig: "8B 0D ? ? ? ? 8B F0 83 C4 10 8B 49 5C 8B 01 85 C0 0F 84 ? ? ? ? 6A 00 FF 75 F4 50 E8 ? ? ? ? 83 C4 0C 89 45 E8 85 C0"
             patternOffset: 0x2
             addressOffset: 0x0  
