@@ -28,8 +28,7 @@
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
-  * [Fixing Connection Issues](#fixing-connection-issue)
-  * [Protecting Player IP Addresses](#protecting-player-ip-addresses)
+  * [Customizing Peer to Peer Behavior](#customizing-peer-to-peer-behavior)
 * [Contributing](#contributing)
 * [License](#license)
 
@@ -117,7 +116,7 @@ yarn start
 ### Customizing Peer to Peer Behavior
 By default CrewLink clients will attempt to establish connections directly to each other for sending voice and game 
 state data. As a fallback mechanism, CrewLink-server ships with an integrated TURN server in the event clients cannot
-directly connect to each other. You may want to customize this behavior, to, for example exclusively use the TURN relay
+directly connect to each other. You may want to customize this behavior to, for example, exclusively use the TURN relay
 to protect player IP addresses. To do so, head into the ``config`` folder and rename ``peerConfig.example.yml`` to
 ``peerConfig.yml`` and make the desired changes.
 
