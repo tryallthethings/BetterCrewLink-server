@@ -7,7 +7,10 @@ import socketIO from 'socket.io';
 import Tracer from 'tracer';
 import morgan from 'morgan';
 import publicIp from 'public-ip';
-import peerConfig from './peer-config';
+import TurnServer from 'node-turn';
+import crypto from 'crypto';
+import peerConfig  from './peerConfig';
+import { ICEServer } from './ICEServer';
 
 const httpsEnabled = !!process.env.HTTPS;
 
@@ -20,6 +23,11 @@ const logger = Tracer.colorConsole({
 	format: "{{timestamp}} <{{title}}> {{message}}"
 });
 
+const turnLogger = Tracer.colorConsole({
+	format: "{{timestamp}} <{{title}}> <ice> {{message}}",
+	level: peerConfig.integratedRelay.debugLevel.toLowerCase()
+})
+
 const app = express();
 let server: HttpsServer | Server;
 if (httpsEnabled) {
@@ -30,6 +38,24 @@ if (httpsEnabled) {
 } else {
 	server = new Server(app);
 }
+
+let turnServer: TurnServer | null = null;
+if (peerConfig.integratedRelay.enabled) {
+	turnServer = new TurnServer({
+		minPort: peerConfig.integratedRelay.minPort,
+		maxPort: peerConfig.integratedRelay.maxPort,
+		listeningPort: peerConfig.integratedRelay.listeningPort,
+		authMech: 'long-term',
+		debugLevel: peerConfig.integratedRelay.debugLevel,
+		realm: 'crewlink',
+		debug: (level, message) => {
+			turnLogger[level.toLowerCase()](message)
+		}
+	})
+	
+	turnServer.start();
+}
+
 const io = socketIO(server);
 
 const playerIds = new Map<string, number>();
@@ -43,10 +69,16 @@ interface SetIDsPacket {
 	[key: string]: number
 }
 
+interface ClientPeerConfig {
+	forceRelayOnly: boolean;
+	iceServers: ICEServer[]
+}
+
 app.set('view engine', 'pug');
 app.use(morgan('combined'));
 app.use(express.static('offsets'));
 let connectionCount = 0;
+let ip = process.env.IP_ADDRESS;
 let address = process.env.ADDRESS;
 
 app.get('/', (_, res) => {
@@ -68,7 +100,23 @@ io.on('connection', (socket: socketIO.Socket) => {
 	logger.info("Total connected: %d", connectionCount);
 	let code: string | null = null;
 
-	socket.emit('peerConfig', peerConfig);
+	const clientPeerConfig: ClientPeerConfig = {
+		forceRelayOnly: peerConfig.forceRelayOnly,
+		iceServers: peerConfig.iceServers? [...peerConfig.iceServers] : []
+	}
+
+	if (turnServer) {
+		const turnCredential = crypto.randomBytes(32).toString('base64');
+		turnServer.addUser(socket.id, turnCredential);
+		logger.info(`Adding socket "${socket.id}" as TURN user.`)
+		clientPeerConfig.iceServers.push({
+			urls: `turn:${ip}:${peerConfig.integratedRelay.listeningPort}`,
+			username: socket.id,
+			credential: turnCredential
+		});
+	}
+
+	socket.emit('clientPeerConfig', clientPeerConfig);
 
 	socket.on('join', (c: string, id: number) => {
 		if (typeof c !== 'string' || typeof id !== 'number') {
@@ -120,13 +168,25 @@ io.on('connection', (socket: socketIO.Socket) => {
 	socket.on('disconnect', () => {
 		connectionCount--;
 		playerIds.delete(socket.id);
+
+		if (turnServer) {
+			logger.info(`Removing socket "${socket.id}" as TURN user.`)
+			turnServer.removeUser(socket.id);
+		}
+
 		logger.info("Total connected: %d", connectionCount);
 	});
 });
 
-server.listen(port);
 (async () => {
-	if (!address)
-		address = `http://${await publicIp.v4()}:${port}`;
+	if (!ip) {
+		ip = await publicIp.v4();
+	}
+
+	if (!address) {
+		address = `${httpsEnabled ? 'https' : 'http'}://${ip}:${port}`;
+	}
+
+	server.listen(port);
 	logger.info('CrewLink Server started: %s', address);
 })();
