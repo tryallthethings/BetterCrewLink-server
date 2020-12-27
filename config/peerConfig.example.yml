@@ -12,7 +12,7 @@
 # as no direct connection will be made. At least one TURN server is required if set to true.
 forceRelayOnly: false
 
-# Settings for the built-in TURN/STUN server.
+# Settings for the built-in TURN server.
 integratedRelay:
   enabled: true # Use the-built in relay server if you run a small-scale server for private use.
   minPort: 49152
@@ -26,6 +26,7 @@ integratedRelay:
 
 # Custom TURN/STUN servers
 iceServers:
+  # Google's STUN server is used by default
   - urls: 'stun:stun.l.google.com:19302'
 #   - urls: 'turn:example.com'
 #     username: 'TurnUsername'

@@ -114,21 +114,12 @@ yarn install
 yarn start
 ```
 4. Copy your server URL into CrewLink settings. Make sure everyone in your lobby is using the same server.
-
-### Fixing Connection Issues
-
-CrewLink-server should work out of the box for most people. You may, however, come across people who are unable to hear 
-other people, no matter what they try. This could be because of a NAT or firewall that is preventing peer to peer
-connections. In this case you may want to set up your own relay server to act as a middleman for your voice traffic.
-CrewLink needs a specific type of server for this called a TURN server. As of yet CrewLink does not come with one by
-default. 
-
-You can configure a TURN server by creating a file called ``peer-config.yml`` in the config folder. Use the
-provided example as a template. A good, open source TURN server implementation is [Coturn](https://github.com/coturn/coturn).
-
-### Protecting Player IP Addresses
-A relay server may also be desirable in case you want to prevent CrewLink players from detecting the IP addresses of
-everyone in the same Among Us room using CrewLink. Check the section above on how to set one up.
+### Customizing Peer to Peer Behavior
+By default CrewLink clients will attempt to establish connections directly to each other for sending voice and game 
+state data. As a fallback mechanism, CrewLink-server ships with an integrated TURN server in the event clients cannot
+directly connect to each other. You may want to customize this behavior, to, for example exclusively use the TURN relay
+to protect player IP addresses. To do so, head into the ``config`` folder and rename ``peerConfig.example.yml`` to
+``peerConfig.yml`` and make the desired changes.
 
 <!-- CONTRIBUTING -->
 ## Contributing
