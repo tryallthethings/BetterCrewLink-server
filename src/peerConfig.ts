@@ -11,12 +11,14 @@ interface IntegratedRelaySettings {
 	maxPort: number;
 	listeningPort: number;
 	debugLevel: 'OFF' | 'FATAL' | 'ERROR' | 'WARN' | 'INFO' | 'DEBUG' | 'TRACE' | 'ALL';
+	defaultUsername: string;
+	defaultPassword: string;
 }
 
 interface PeerConfig {
 	forceRelayOnly: boolean;
 	integratedRelay: IntegratedRelaySettings;
-	iceServers?: ICEServer[]
+	iceServers?: ICEServer[];
 }
 
 const DEFAULT_PEER_CONFIG: PeerConfig = {
@@ -26,13 +28,15 @@ const DEFAULT_PEER_CONFIG: PeerConfig = {
 		minPort: 49152,
 		maxPort: 65535,
 		listeningPort: 3478,
-		debugLevel: 'INFO'
+		debugLevel: 'INFO',
+		defaultUsername: 'M9DRVaByiujoXeuYAAAG',
+		defaultPassword: 'TpHR9HQNZ8taxjb3',
 	},
 	iceServers: [
 		{
-			urls: 'stun:stun.l.google.com:19302'
-		}
-	]
+			urls: 'stun:stun.l.google.com:19302',
+		},
+	],
 };
 
 let peerConfig = DEFAULT_PEER_CONFIG;
@@ -44,4 +48,4 @@ if (fs.existsSync(PEER_CONFIG_PATH)) {
 	}
 }
 
-export default peerConfig
+export default peerConfig;

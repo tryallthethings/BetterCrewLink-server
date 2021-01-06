@@ -20,7 +20,8 @@ integratedRelay:
   listeningPort: 3478
   # Can be one of: OFF, FATAL, ERROR, WARN, INFO, DEBUG, TRACE, ALL
   debugLevel: 'INFO'
-
+  defaultUsername: 'M9DRVaByiujoXeuYAAAG'
+  defaultPassword: 'TpHR9HQNZ8taxjb3'
 # If you run into performance issues, you may want to look into offloading relay duties to a native TURN/STUN
 # implementation. You can configure them below.
 
