@@ -2,18 +2,18 @@
 
 <br />
 <p align="center">
-  <a href="https://github.com/ottomated/crewlink-server">
+  <a href="https://github.com/OhMyGuus/crewlink-server">
     <img src="logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">CrewLink Server</h3>
+  <h3 align="center">BetterCrewlink Server</h3>
 
   <p align="center">
-    Voice Relay server for <a href="https://github.com/ottomated/crewlink">CrewLink</a>.
+    Voice Relay server for <a href="https://github.com/OhMyGuus/crewlink">BetterCrewlink</a>.
     <br />
-    <a href="https://github.com/ottomated/crewlink-server/issues">Report Bug</a>
+    <a href="https://github.com/OhMyGuus/crewlink-server/issues">Report Bug</a>
     ·
-    <a href="https://github.com/ottomated/crewlink-server/issues">Request Feature</a>
+    <a href="https://github.com/OhMyGuus/crewlink-server/issues">Request Feature</a>
   </p>
 </p>
 
@@ -44,7 +44,7 @@ This is the relay server for CrewLink, an Among Us proximity voice chat program.
 Optional environment variables:
 
  - `PORT`: Specifies the port that the server runs on. Defaults to `443` if `HTTPS` is enabled, and `9736` if not.
- - `ADDRESS` **(REQUIRED)**: Specifies the server domain
+ - `HOSTNAME` **(REQUIRED)**: The hostname or IP of the server (a record without a proxy so if you have cloudflare make a extra dns record named for example direct.domain.com and disable the proxy for that record (this is for the turn server))
  - `NAME`: Specifies the server name
  - `HTTPS`: Enables https. You must place `privkey.pem` and `fullchain.pem` in your CWD.
  - `SSLPATH`: Specifies an alternate path to SSL certificates.
@@ -55,20 +55,20 @@ To get up and running quickly, you can deploy to Heroku using the button below
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-This will deploy an instance of the crewlink-server. You can get the URL of your server by using the app name that you gave when you launched the app on heroku and appending `.herokuapp.com`. You can also find the URL of your server by going to "Settings", scrolling down to "Domains". Using this URL, follow step 4 of the [installation instructions](https://github.com/ottomated/CrewLink-server#manual-installation) to connect your client to your server instance.
+This will deploy an instance of the crewlink-server. You can get the URL of your server by using the app name that you gave when you launched the app on heroku and appending `.herokuapp.com`. You can also find the URL of your server by going to "Settings", scrolling down to "Domains". Using this URL, follow step 4 of the [installation instructions](https://github.com/OhMyGuus/CrewLink-server#manual-installation) to connect your client to your server instance.
 
 ## Docker Quickstart
 
 Run the server with [Docker](https://docs.docker.com/get-docker/) by running the following command:
 
 ```
-docker run -d -p 9736:9736 ottomated/crewlink-server:latest
+docker run -d -p 9736:9736 OhMyGuus/crewlink-server:latest
 ```
 
 To change the external port the server uses, change the *first* instance of the port. For example, to use port 8123:
 
 ```
-docker run -d -p 8123:9736 ottomated/crewlink-server:latest
+docker run -d -p 8123:9736 OhMyGuus/crewlink-server:latest
 ```
 
 ### Building the Docker Image
@@ -77,13 +77,13 @@ To build your own Docker image, do the following:
 
 1. Clone the repo
 ```sh
-git clone https://github.com/ottomated/crewlink-server.git
+git clone https://github.com/OhMyGuus/crewlink-server.git
 cd crewlink-server
 ```
 
 2. Run the Docker build command:
 ```sh
-docker build -t ottomated/crewlink-server:build .
+docker build -t OhMyGuus/crewlink-server:build .
 ```
 
 ## Manual Installation
@@ -101,7 +101,7 @@ npm install yarn -g
 
 1. Clone the repo
 ```sh
-git clone https://github.com/ottomated/crewlink-server.git
+git clone https://github.com/OhMyGuus/crewlink-server.git
 cd crewlink-server
 ```
 2. Install NPM packages
@@ -137,7 +137,7 @@ Any contributions you make are greatly appreciated.
 Distributed under the GNU General Public License v3.0. See `LICENSE` for more information.
 
 
-[license-shield]: https://img.shields.io/github/license/ottomated/crewlink.svg?style=flat-square
-[license-url]: https://github.com/ottomated/crewlink-server/blob/master/LICENSE
-[docker-shield]: https://img.shields.io/docker/pulls/ottomated/crewlink-server
-[docker-url]: https://hub.docker.com/repository/docker/ottomated/crewlink-server
+[license-shield]: https://img.shields.io/github/license/OhMyGuus/crewlink.svg?style=flat-square
+[license-url]: https://github.com/OhMyGuus/crewlink-server/blob/master/LICENSE
+[docker-shield]: https://img.shields.io/docker/pulls/OhMyGuus/crewlink-server
+[docker-url]: https://hub.docker.com/repository/docker/OhMyGuus/crewlink-server

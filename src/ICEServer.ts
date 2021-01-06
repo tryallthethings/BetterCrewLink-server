@@ -1,5 +1,5 @@
 export interface ICEServer {
-	urls: string|string[];
+	urls: string | string[];
 	username?: string;
 	credential?: string;
 }
