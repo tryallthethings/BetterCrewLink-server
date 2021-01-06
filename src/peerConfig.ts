@@ -24,7 +24,7 @@ interface PeerConfig {
 const DEFAULT_PEER_CONFIG: PeerConfig = {
 	forceRelayOnly: false,
 	integratedRelay: {
-		enabled: true,
+		enabled: false,
 		minPort: 49152,
 		maxPort: 65535,
 		listeningPort: 3478,
