@@ -11,6 +11,7 @@ import crypto from 'crypto';
 import peerConfig from './peerConfig';
 import { ICEServer } from './ICEServer';
 
+
 const httpsEnabled = !!process.env.HTTPS;
 
 const port = process.env.PORT || (httpsEnabled ? '443' : '9736');
