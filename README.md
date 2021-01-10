@@ -77,13 +77,13 @@ To build your own Docker image, do the following:
 
 1. Clone the repo
 ```sh
-git clone https://github.com/OhMyGuus/crewlink-server.git
-cd crewlink-server
+git clone https://github.com/OhMyGuus/BetterCrewLink-server.git
+cd BetterCrewLink-server
 ```
 
 2. Run the Docker build command:
 ```sh
-docker build -t OhMyGuus/crewlink-server:build .
+docker build -t OhMyGuus/bettercrewlink-server:build .
 ```
 
 ## Manual Installation
