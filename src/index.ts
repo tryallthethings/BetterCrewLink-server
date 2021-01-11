@@ -6,11 +6,10 @@ import { join } from 'path';
 import socketIO from 'socket.io';
 import Tracer from 'tracer';
 import morgan from 'morgan';
-import TurnServer from 'node-turn';
 import crypto from 'crypto';
 import peerConfig from './peerConfig';
 import { ICEServer } from './ICEServer';
-
+let TurnServer = require('node-turn');
 
 const httpsEnabled = !!process.env.HTTPS;
 
@@ -41,7 +40,7 @@ if (httpsEnabled) {
 	server = new Server(app);
 }
 
-let turnServer: TurnServer | null = null;
+let turnServer: any | null = null;
 if (peerConfig.integratedRelay.enabled) {
 	turnServer = new TurnServer({
 		minPort: peerConfig.integratedRelay.minPort,
@@ -50,7 +49,7 @@ if (peerConfig.integratedRelay.enabled) {
 		authMech: 'long-term',
 		debugLevel: peerConfig.integratedRelay.debugLevel,
 		realm: 'crewlink',
-		debug: (level, message) => {
+		debug: (level: string, message: string) => {
 			turnLogger[level.toLowerCase()](message);
 		},
 	});
