@@ -62,13 +62,13 @@ This will deploy an instance of the crewlink-server. You can get the URL of your
 Run the server with [Docker](https://docs.docker.com/get-docker/) by running the following command:
 
 ```
-docker run -d -p 9736:9736 OhMyGuus/crewlink-server:latest
+docker run -d -p 9736:9736 ohmyguus/bettercrewlink-server:latest
 ```
 
 To change the external port the server uses, change the *first* instance of the port. For example, to use port 8123:
 
 ```
-docker run -d -p 8123:9736 OhMyGuus/bettercrewlink-server:latest
+docker run -d -p 8123:9736 ohmyguus/bettercrewlink-server:latest
 ```
 
 ### Building the Docker Image
@@ -83,7 +83,7 @@ cd BetterCrewLink-server
 
 2. Run the Docker build command:
 ```sh
-docker build -t OhMyGuus/bettercrewlink-server:build .
+docker build -t ohmyguus/bettercrewlink-server:build .
 ```
 
 ## Manual Installation
@@ -139,5 +139,5 @@ Distributed under the GNU General Public License v3.0. See `LICENSE` for more in
 
 [license-shield]: https://img.shields.io/github/license/OhMyGuus/crewlink.svg?style=flat-square
 [license-url]: https://github.com/OhMyGuus/crewlink-server/blob/master/LICENSE
-[docker-shield]: https://img.shields.io/docker/pulls/OhMyGuus/crewlink-server
-[docker-url]: https://hub.docker.com/repository/docker/OhMyGuus/crewlink-server
+[docker-shield]: https://img.shields.io/docker/pulls/ohmyguus/bettercrewlink-server
+[docker-url]: https://hub.docker.com/repository/docker/ohmyguus/bettercrewlink-server

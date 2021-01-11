@@ -1,24 +1,34 @@
-# ohmyguus/crewlink-server
-FROM node:current-alpine3.10 as build_stage
-
-# Make a directory for the app, give node user permissions
-RUN mkdir /app
-
-# Change to the /app directory *and* make it the default execution directory
+#################################################
+# Common base image
+#################################################
+FROM node:14-alpine as common
+RUN mkdir /app && chown node:node /app
 WORKDIR /app
+USER node
 
-# Copy the repo contents from the build context into the image
-COPY ./ /app/
+# Cache node_modules installation as they change
+# less than code over time.
+COPY package.json yarn.lock tsconfig.json ./
+RUN yarn install --production && \
+    rm -rf ~/.cache /tmp/v8-compile-cache-1000
 
-# Install NPM packages
+#################################################
+# Compile stage
+#################################################
+FROM common as build
 RUN yarn install
-
-# Compile project
+COPY src/ src/
 RUN yarn compile
 
-# Tell the Docker engine the default port is 9736
-
-FROM node:current-alpine3.10 as run_stage
-COPY --from=build_stage /app/dist /dist
-# Run the app when the container starts
+#################################################
+# Production stage
+#################################################
+FROM common
+COPY views/ views/
+# It's a toss up on which order offsets and src
+# should be. Offsets are gauranteed to change
+# over time, but src has more changes in `git log`.
+COPY public/ public/
+COPY --from=build /app/dist/ dist
+EXPOSE 9736
 CMD ["node", "dist/index.js"]
