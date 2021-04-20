@@ -167,7 +167,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 		let client = clients.get(socket.id);
 		if (client != null && client.clientId != null && client.clientId !== clientId) {
 ///			socket.disconnect();
-			logger.error(`Socket %s sent invalid id command, attempted spoofing another client`);
+			logger.error(`Socket ${socket.id}->${client.clientId}->${clientId}->${id} sent invalid id command, attempted spoofing another client`);
 //			return;
 		}
 		client = {
