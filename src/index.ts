@@ -81,9 +81,11 @@ interface ClientPeerConfig {
 	iceServers: ICEServer[];
 }
 
+app.enable('trust proxy');
+app.set('views', join(__dirname, '../views'));
+app.use('/public',  express.static(join(__dirname, '../public')))
 app.set('view engine', 'pug');
 app.use(morgan('combined'));
-app.use('/public', express.static('public'));
 
 let connectionCount = 0;
 let hostname = process.env.HOSTNAME;
