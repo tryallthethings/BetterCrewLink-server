@@ -83,7 +83,7 @@ interface ClientPeerConfig {
 
 app.set('view engine', 'pug');
 app.use(morgan('combined'));
-app.use('/public', express.static('public'))
+app.use('/public', express.static('public'));
 
 let connectionCount = 0;
 let hostname = process.env.HOSTNAME;
@@ -106,8 +106,6 @@ app.get('/health', (req, res) => {
 		name: process.env.NAME,
 	});
 });
-
-
 
 io.on('connection', (socket: socketIO.Socket) => {
 	connectionCount++;
@@ -155,7 +153,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 		socket.join(code);
 		socket.to(code).broadcast.emit('join', socket.id, {
 			playerId: id,
-			clientId: clientId === Math.pow(2, 32) - 1 ? null : clientId,
+			clientId: clientId,
 		});
 		socket.emit('setClients', otherClients);
 	});
@@ -168,13 +166,13 @@ io.on('connection', (socket: socketIO.Socket) => {
 		}
 		let client = clients.get(socket.id);
 		if (client != null && client.clientId != null && client.clientId !== clientId) {
-			socket.disconnect();
+///			socket.disconnect();
 			logger.error(`Socket %s sent invalid id command, attempted spoofing another client`);
-			return;
+//			return;
 		}
 		client = {
 			playerId: id,
-			clientId: clientId === Math.pow(2, 32) - 1 ? null : clientId,
+			clientId: clientId,
 		};
 		clients.set(socket.id, client);
 		socket.to(code).broadcast.emit('setClient', socket.id, client);
