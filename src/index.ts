@@ -109,6 +109,7 @@ app.get('/health', (req, res) => {
 	});
 });
 
+
 io.on('connection', (socket: socketIO.Socket) => {
 	connectionCount++;
 	logger.info('Total connected: %d', connectionCount);
@@ -187,6 +188,18 @@ io.on('connection', (socket: socketIO.Socket) => {
 		}
 	});
 
+	socket.on('VAD', (activity: boolean) => {
+		let client = clients.get(socket.id);
+		if (code && client) {
+			io.to(code).emit('VAD', {
+				activity,
+				client,
+				from: socket.id,
+			});
+		}
+	});
+
+
 	socket.on('signal', (signal: Signal) => {
 		if (typeof signal !== 'object' || !signal.data || !signal.to || typeof signal.to !== 'string') {
 			socket.disconnect();
@@ -213,4 +226,4 @@ io.on('connection', (socket: socketIO.Socket) => {
 });
 
 server.listen(port);
-logger.info('CrewLink Server started: 127.0.0.1:%s', port);
+logger.info('BetterCrewLink Server started: 127.0.0.1:%s', port);
