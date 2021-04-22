@@ -191,7 +191,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 	socket.on('VAD', (activity: boolean) => {
 		let client = clients.get(socket.id);
 		if (code && client) {
-			io.to(code).emit('VAD', {
+			socket.to(code).broadcast.emit('VAD', {
 				activity,
 				client,
 				socketId: socket.id,
