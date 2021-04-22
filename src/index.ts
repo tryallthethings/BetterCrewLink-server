@@ -194,7 +194,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 			io.to(code).emit('VAD', {
 				activity,
 				client,
-				from: socket.id,
+				socketId: socket.id,
 			});
 		}
 	});
