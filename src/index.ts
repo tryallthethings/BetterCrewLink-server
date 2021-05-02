@@ -134,9 +134,7 @@ app.get('/health', (req, res) => {
 app.get('/lobbies', (req, res) => {
 	res.json(Array.from(publicLobbies.values()));
 });
-app.get('/lobbiescodes', (req, res) => {
-	res.json(Array.from(lobbyCodes.keys()));
-});
+
 const leaveroom = (socket: socketIO.Socket, code: string) => {
 	socket.leave(code);
 	if ((io.sockets.adapter.rooms[code]?.length ?? 0) <= 0) {
