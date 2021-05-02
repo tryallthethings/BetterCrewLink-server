@@ -9,6 +9,7 @@ import morgan from 'morgan';
 import crypto from 'crypto';
 import peerConfig from './peerConfig';
 import { ICEServer } from './ICEServer';
+import e from 'express';
 let TurnServer = require('node-turn');
 
 const httpsEnabled = !!process.env.HTTPS;
@@ -65,6 +66,9 @@ if (peerConfig.integratedRelay.enabled) {
 const io = socketIO(server);
 
 const clients = new Map<string, Client>();
+const publicLobbies = new Map<string, PublicLobby>();
+const lobbyCodes = new Map<number, string>();
+const allLobbies = new Map<string, number>();
 
 interface Client {
 	playerId: number;
@@ -81,13 +85,30 @@ interface ClientPeerConfig {
 	iceServers: ICEServer[];
 }
 
+interface ClientPeerConfig {
+	forceRelayOnly: boolean;
+	iceServers: ICEServer[];
+}
+
+interface PublicLobby {
+	Id: number;
+	title: string;
+	host: string;
+	current_players: number;
+	max_players: number;
+	language: string;
+	mods: string;
+	isPublic: boolean;
+}
+
 app.enable('trust proxy');
 app.set('views', join(__dirname, '../views'));
-app.use('/public',  express.static(join(__dirname, '../public')))
+app.use('/public', express.static(join(__dirname, '../public')));
 app.set('view engine', 'pug');
 app.use(morgan('combined'));
 
 let connectionCount = 0;
+
 let hostname = process.env.HOSTNAME;
 if (!hostname && peerConfig.integratedRelay.enabled) {
 	logger.error('You must set the HOSTNAME environment variable to use the TURN server.');
@@ -96,7 +117,7 @@ if (!hostname && peerConfig.integratedRelay.enabled) {
 
 app.get('/', (req, res) => {
 	let address = req.protocol + '://' + req.host;
-	res.render('index', { connectionCount, address });
+	res.render('index', { connectionCount, address, lobbiesCount: allLobbies.size });
 });
 
 app.get('/health', (req, res) => {
@@ -104,14 +125,35 @@ app.get('/health', (req, res) => {
 	res.json({
 		uptime: process.uptime(),
 		connectionCount,
+		lobbiesCount: allLobbies.size,
 		address,
 		name: process.env.NAME,
 	});
 });
 
+app.get('/lobbies', (req, res) => {
+	res.json(Array.from(publicLobbies.values()));
+});
+app.get('/lobbiescodes', (req, res) => {
+	res.json(Array.from(lobbyCodes.keys()));
+});
+const leaveroom = (socket: socketIO.Socket, code: string) => {
+	socket.leave(code);
+	if ((io.sockets.adapter.rooms[code]?.length ?? 0) <= 0) {
+		if (allLobbies.has(code)) {
+			allLobbies.delete(code);
+		}
+		if (publicLobbies.has(code)) {
+			io.sockets.in('lobbybrowser').emit('remove_lobby', publicLobbies.get(code).Id);
+			lobbyCodes.delete(publicLobbies.get(code).Id);
+			publicLobbies.delete(code);
+		}
+	}
+	// public room check
+};
 io.on('connection', (socket: socketIO.Socket) => {
 	connectionCount++;
-	logger.info('Total connected: %d', connectionCount);
+	logger.info('Total connected: %d in %d lobbies', connectionCount, allLobbies.size);
 	let code: string | null = null;
 
 	const clientPeerConfig: ClientPeerConfig = {
@@ -150,7 +192,11 @@ io.on('connection', (socket: socketIO.Socket) => {
 				// }
 				if (s !== socket.id) otherClients[s] = clients.get(s);
 			}
+		} else if (!allLobbies.has(c)) {
+			allLobbies.set(c, 1);
 		}
+
+		if (code != c) leaveroom(socket, code);
 		code = c;
 		socket.join(code);
 		socket.to(code).broadcast.emit('join', socket.id, {
@@ -168,9 +214,11 @@ io.on('connection', (socket: socketIO.Socket) => {
 		}
 		let client = clients.get(socket.id);
 		if (client != null && client.clientId != null && client.clientId !== clientId) {
-///			socket.disconnect();
-			logger.error(`Socket ${socket.id}->${client.clientId}->${clientId}->${id} sent invalid id command, attempted spoofing another client`);
-//			return;
+			///			socket.disconnect();
+			logger.error(
+				`Socket ${socket.id}->${client.clientId}->${clientId}->${id} sent invalid id command, attempted spoofing another client`
+			);
+			//			return;
 		}
 		client = {
 			playerId: id,
@@ -182,9 +230,47 @@ io.on('connection', (socket: socketIO.Socket) => {
 
 	socket.on('leave', () => {
 		if (code) {
-			socket.leave(code);
-			clients.delete(socket.id);
+			leaveroom(socket, code);
+			clients.delete(socket.id); // @ts-ignore
 		}
+	});
+
+	socket.on('join_lobby', (id: number, callbackFn) => {
+		//ban check etc...
+		if (lobbyCodes.has(id) && publicLobbies.has(lobbyCodes.get(id))) {
+			let lobbyCode = lobbyCodes.get(id);
+			let publicLobby = publicLobbies.get(lobbyCode);
+			if (publicLobby.isPublic) {
+				callbackFn(0, lobbyCode);
+				return;
+			} else {
+				callbackFn(1, 'Lobby is not public anymore');
+			}
+		}
+		callbackFn(1, 'Lobby not found :C');
+	});
+
+	let lobbyCount = 0;
+	socket.on('lobby', (c: string, lobbyInfo: PublicLobby) => {
+		if (code != c) {
+			logger.error(`Got request to host lobby while not in it %s`, c, code);
+			return;
+		}
+
+		const Id = publicLobbies.has(c) ? publicLobbies.get(c).Id : lobbyCount++;
+		let lobby: PublicLobby = {
+			Id,
+			title: lobbyInfo.title.substring(0, 20),
+			host: lobbyInfo.host.substring(0, 10),
+			current_players: lobbyInfo.current_players,
+			max_players: lobbyInfo.max_players,
+			language: lobbyInfo.language.substring(0, 5),
+			mods: lobbyInfo.mods.substring(0, 20),
+			isPublic: lobbyInfo.isPublic,
+		};
+		lobbyCodes.set(Id, c);
+		publicLobbies.set(c, lobby);
+		io.sockets.in('lobbybrowser').emit('update_lobby', lobby);
 	});
 
 	socket.on('signal', (signal: Signal) => {
@@ -200,10 +286,20 @@ io.on('connection', (socket: socketIO.Socket) => {
 		});
 	});
 
+	socket.on('lobbybrowser', (open) => {
+		if (!open) {
+			socket.leave('lobbybrowser');
+		} else {
+			socket.join('lobbybrowser');
+			io.sockets.in('lobbybrowser').emit('new_lobbies', Array.from(publicLobbies.values()));
+		}
+	});
+
 	socket.on('disconnect', () => {
+		leaveroom(socket, code);
 		clients.delete(socket.id);
 		connectionCount--;
-		logger.info('Total connected: %d', connectionCount);
+		logger.info('Total connected: %d in %d lobbies', connectionCount, allLobbies.size);
 
 		// if (turnServer) {
 		// 	logger.info(`Removing socket "${socket.id}" as TURN user.`);
@@ -213,4 +309,4 @@ io.on('connection', (socket: socketIO.Socket) => {
 });
 
 server.listen(port);
-logger.info('CrewLink Server started: 127.0.0.1:%s', port);
+logger.info('BetterCrewLink Server started: 127.0.0.1:%s', port);
