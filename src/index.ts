@@ -99,7 +99,7 @@ interface ClientPeerConfig {
 }
 
 interface PublicLobby {
-	Id: number;
+	id: number;
 	title: string;
 	host: string;
 	current_players: number;
@@ -273,9 +273,9 @@ io.on('connection', (socket: socketIO.Socket) => {
 		if (!lobbyInfo.isPublic) {
 			removePublicLobby(c);
 		} else {
-			const Id = publicLobbies.has(c) ? publicLobbies.get(c).Id : lobbyCount++;
+			const id = publicLobbies.has(c) ? publicLobbies.get(c).id : lobbyCount++;
 			let lobby: PublicLobby = {
-				Id,
+				id,
 				title: lobbyInfo.title.substring(0, 20),
 				host: lobbyInfo.host.substring(0, 10),
 				current_players: lobbyInfo.current_players,
@@ -283,10 +283,9 @@ io.on('connection', (socket: socketIO.Socket) => {
 				language: lobbyInfo.language.substring(0, 5),
 				mods: lobbyInfo.mods.substring(0, 20),
 				isPublic: lobbyInfo.isPublic,
-				server: lobbyInfo.server
+				server: lobbyInfo.server,
 			};
-
-			lobbyCodes.set(Id, c);
+			lobbyCodes.set(id, c);
 			publicLobbies.set(c, lobby);
 			io.sockets.in('lobbybrowser').emit('update_lobby', lobby);
 		}
