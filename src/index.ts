@@ -145,7 +145,8 @@ app.get('/lobbies', (req, res) => {
 });
 
 const leaveroom = (socket: socketIO.Socket, code: string) => {
-	socket.leave(code);
+	if (code.length === 6) socket.leave(code);
+
 	if ((io.sockets.adapter.rooms[code]?.length ?? 0) <= 0) {
 		if (allLobbies.has(code)) {
 			allLobbies.delete(code);
@@ -195,7 +196,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 				// }
 				if (s !== socket.id) otherClients[s] = clients.get(s);
 			}
-		} else if (!allLobbies.has(c)) {
+		} else if (!allLobbies.has(c) && c.length === 6) {
 			allLobbies.set(c, 1);
 		}
 
