@@ -72,7 +72,7 @@ const allLobbies = new Map<string, number>();
 
 function removePublicLobby(c: string) {
 	if (publicLobbies.has(c)) {
-		let pid = publicLobbies.get(c).Id;
+		let pid = publicLobbies.get(c).id;
 		io.sockets.in('lobbybrowser').emit('remove_lobby', pid);
 		lobbyCodes.delete(pid);
 		publicLobbies.delete(c);
