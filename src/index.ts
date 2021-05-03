@@ -145,7 +145,10 @@ app.get('/lobbies', (req, res) => {
 });
 
 const leaveroom = (socket: socketIO.Socket, code: string) => {
-	if (code.length === 6) socket.leave(code);
+	if(!code){
+		return;
+	}
+	if (code && code.length === 6) socket.leave(code);
 
 	if ((io.sockets.adapter.rooms[code]?.length ?? 0) <= 0) {
 		if (allLobbies.has(code)) {
