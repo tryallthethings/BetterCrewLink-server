@@ -69,6 +69,7 @@ const clients = new Map<string, Client>();
 const publicLobbies = new Map<string, PublicLobby>();
 const lobbyCodes = new Map<number, string>();
 const allLobbies = new Map<string, number>();
+let lobbyCount = 0;
 
 function removePublicLobby(c: string) {
 	if (publicLobbies.has(c)) {
@@ -268,7 +269,6 @@ io.on('connection', (socket: socketIO.Socket) => {
 		callbackFn(1, 'Lobby not found :C');
 	});
 
-	let lobbyCount = 0;
 	socket.on('lobby', (c: string, lobbyInfo: PublicLobby) => {
 		if (code != c) {
 			logger.error(`Got request to host lobby while not in it %s`, c, code);
