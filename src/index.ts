@@ -69,7 +69,16 @@ const clients = new Map<string, Client>();
 const publicLobbies = new Map<string, PublicLobby>();
 const lobbyCodes = new Map<number, string>();
 const allLobbies = new Map<string, number>();
+let lobbyCount = 0;
 
+function removePublicLobby(c: string) {
+	if (publicLobbies.has(c)) {
+		let pid = publicLobbies.get(c).id;
+		io.sockets.in('lobbybrowser').emit('remove_lobby', pid);
+		lobbyCodes.delete(pid);
+		publicLobbies.delete(c);
+	}
+}
 interface Client {
 	playerId: number;
 	clientId: number;
@@ -91,7 +100,7 @@ interface ClientPeerConfig {
 }
 
 interface PublicLobby {
-	Id: number;
+	id: number;
 	title: string;
 	host: string;
 	current_players: number;
@@ -99,6 +108,7 @@ interface PublicLobby {
 	language: string;
 	mods: string;
 	isPublic: boolean;
+	server: string;
 }
 
 app.enable('trust proxy');
@@ -136,16 +146,16 @@ app.get('/lobbies', (req, res) => {
 });
 
 const leaveroom = (socket: socketIO.Socket, code: string) => {
-	socket.leave(code);
+	if(!code){
+		return;
+	}
+	if (code && code.length === 6) socket.leave(code);
+
 	if ((io.sockets.adapter.rooms[code]?.length ?? 0) <= 0) {
 		if (allLobbies.has(code)) {
 			allLobbies.delete(code);
 		}
-		if (publicLobbies.has(code)) {
-			io.sockets.in('lobbybrowser').emit('remove_lobby', publicLobbies.get(code).Id);
-			lobbyCodes.delete(publicLobbies.get(code).Id);
-			publicLobbies.delete(code);
-		}
+		removePublicLobby(code);
 	}
 	// public room check
 };
@@ -190,7 +200,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 				// }
 				if (s !== socket.id) otherClients[s] = clients.get(s);
 			}
-		} else if (!allLobbies.has(c)) {
+		} else if (!allLobbies.has(c) && c.length === 6) {
 			allLobbies.set(c, 1);
 		}
 
@@ -233,13 +243,24 @@ io.on('connection', (socket: socketIO.Socket) => {
 		}
 	});
 
+	socket.on('VAD', (activity: boolean) => {
+		let client = clients.get(socket.id);
+		if (code && client) {
+			socket.to(code).broadcast.emit('VAD', {
+				activity,
+				client,
+				socketId: socket.id,
+			});
+		}
+	});
+
 	socket.on('join_lobby', (id: number, callbackFn) => {
 		//ban check etc...
 		if (lobbyCodes.has(id) && publicLobbies.has(lobbyCodes.get(id))) {
 			let lobbyCode = lobbyCodes.get(id);
 			let publicLobby = publicLobbies.get(lobbyCode);
 			if (publicLobby.isPublic) {
-				callbackFn(0, lobbyCode);
+				callbackFn(0, lobbyCode, publicLobby.server);
 				return;
 			} else {
 				callbackFn(1, 'Lobby is not public anymore');
@@ -248,27 +269,38 @@ io.on('connection', (socket: socketIO.Socket) => {
 		callbackFn(1, 'Lobby not found :C');
 	});
 
-	let lobbyCount = 0;
 	socket.on('lobby', (c: string, lobbyInfo: PublicLobby) => {
 		if (code != c) {
 			logger.error(`Got request to host lobby while not in it %s`, c, code);
 			return;
 		}
+		if (!lobbyInfo.isPublic) {
+			removePublicLobby(c);
+		} else {
+			const id = publicLobbies.has(c) ? publicLobbies.get(c).id : lobbyCount++;
+			let lobby: PublicLobby = {
+				id,
+				title: lobbyInfo.title.substring(0, 20),
+				host: lobbyInfo.host.substring(0, 10),
+				current_players: lobbyInfo.current_players,
+				max_players: lobbyInfo.max_players,
+				language: lobbyInfo.language.substring(0, 5),
+				mods: lobbyInfo.mods.substring(0, 20),
+				isPublic: lobbyInfo.isPublic,
+				server: lobbyInfo.server,
+			};
+			lobbyCodes.set(id, c);
+			publicLobbies.set(c, lobby);
+			io.sockets.in('lobbybrowser').emit('update_lobby', lobby);
+		}
+	});
 
-		const Id = publicLobbies.has(c) ? publicLobbies.get(c).Id : lobbyCount++;
-		let lobby: PublicLobby = {
-			Id,
-			title: lobbyInfo.title.substring(0, 20),
-			host: lobbyInfo.host.substring(0, 10),
-			current_players: lobbyInfo.current_players,
-			max_players: lobbyInfo.max_players,
-			language: lobbyInfo.language.substring(0, 5),
-			mods: lobbyInfo.mods.substring(0, 20),
-			isPublic: lobbyInfo.isPublic,
-		};
-		lobbyCodes.set(Id, c);
-		publicLobbies.set(c, lobby);
-		io.sockets.in('lobbybrowser').emit('update_lobby', lobby);
+	socket.on('remove_lobby', (c: string) => {
+		if (code != c) {
+			logger.error(`Got request to host lobby while not in it %s`, c, code);
+			return;
+		}
+		removePublicLobby(c);
 	});
 
 	socket.on('signal', (signal: Signal) => {
