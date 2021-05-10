@@ -280,12 +280,12 @@ io.on('connection', (socket: socketIO.Socket) => {
 			const id = publicLobbies.has(c) ? publicLobbies.get(c).id : lobbyCount++;
 			let lobby: PublicLobby = {
 				id,
-				title: lobbyInfo.title.substring(0, 20),
-				host: lobbyInfo.host.substring(0, 10),
-				current_players: lobbyInfo.current_players,
-				max_players: lobbyInfo.max_players,
-				language: lobbyInfo.language.substring(0, 5),
-				mods: lobbyInfo.mods.substring(0, 20),
+				title: lobbyInfo.title?.substring(0, 20) ?? 'ERROR',
+				host: lobbyInfo.host?.substring(0, 10) ?? '',
+				current_players: lobbyInfo.current_players ?? 0,
+				max_players: lobbyInfo.max_players ?? 0,
+				language: lobbyInfo.language?.substring(0, 5) ?? '',
+				mods: lobbyInfo.mods?.substring(0, 20)?.toUpperCase() ?? '',
 				isPublic: lobbyInfo.isPublic,
 				server: lobbyInfo.server,
 			};
