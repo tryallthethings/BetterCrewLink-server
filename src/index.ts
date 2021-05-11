@@ -116,7 +116,7 @@ interface PublicLobby {
 	language: string;
 	mods: string;
 	isPublic: boolean;
-	isPublic2: boolean | undefined
+	isPublic2?: boolean;
 	server: string;
 	gameState: GameState;
 	stateTime: number;
@@ -285,7 +285,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 			logger.error(`Got request to host lobby while not in it %s`, c, code);
 			return;
 		}
-		if (!lobbyInfo.isPublic) {
+		if (!lobbyInfo.isPublic && !lobbyInfo.isPublic2) {
 			removePublicLobby(c);
 		} else {
 			const publobby = publicLobbies.has(c) ? publicLobbies.get(c) : undefined;
@@ -300,7 +300,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 				max_players: lobbyInfo.max_players ?? 0,
 				language: lobbyInfo.language?.substring(0, 5) ?? '',
 				mods: lobbyInfo.mods?.substring(0, 20)?.toUpperCase() ?? '',
-				isPublic: lobbyInfo.isPublic || lobbyInfo.isPublic2 ,
+				isPublic: lobbyInfo.isPublic || lobbyInfo.isPublic2,
 				server: lobbyInfo.server,
 				gameState: lobbyInfo.gameState,
 				stateTime
