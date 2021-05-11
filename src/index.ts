@@ -270,8 +270,8 @@ io.on('connection', (socket: socketIO.Socket) => {
 		if (lobbyCodes.has(id) && publicLobbies.has(lobbyCodes.get(id))) {
 			let lobbyCode = lobbyCodes.get(id);
 			let publicLobby = publicLobbies.get(lobbyCode);
-			if (publicLobby.isPublic) {
-				callbackFn(0, lobbyCode, publicLobby.server);
+			if (publicLobby.isPublic && publicLobby.gameState === GameState.LOBBY) {
+				callbackFn(0, lobbyCode, publicLobby.server, publicLobby);
 				return;
 			} else {
 				callbackFn(1, 'Lobby is not public anymore');
