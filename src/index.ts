@@ -99,6 +99,14 @@ interface ClientPeerConfig {
 	iceServers: ICEServer[];
 }
 
+enum GameState {
+	LOBBY,
+	TASKS,
+	DISCUSSION,
+	MENU,
+	UNKNOWN,
+}
+
 interface PublicLobby {
 	id: number;
 	title: string;
@@ -108,7 +116,10 @@ interface PublicLobby {
 	language: string;
 	mods: string;
 	isPublic: boolean;
+	isPublic2: boolean | undefined
 	server: string;
+	gameState: GameState;
+	stateTime: number;
 }
 
 app.enable('trust proxy');
@@ -146,7 +157,7 @@ app.get('/lobbies', (req, res) => {
 });
 
 const leaveroom = (socket: socketIO.Socket, code: string) => {
-	if(!code){
+	if (!code) {
 		return;
 	}
 	if (code && code.length === 6) socket.leave(code);
@@ -277,7 +288,10 @@ io.on('connection', (socket: socketIO.Socket) => {
 		if (!lobbyInfo.isPublic) {
 			removePublicLobby(c);
 		} else {
-			const id = publicLobbies.has(c) ? publicLobbies.get(c).id : lobbyCount++;
+			const publobby = publicLobbies.has(c) ? publicLobbies.get(c) : undefined;
+			const id = publobby ? publobby.id : lobbyCount++;
+			const stateTime = publobby && ((publobby.gameState === GameState.LOBBY && lobbyInfo.gameState === GameState.LOBBY) ||
+				(publobby.gameState !== GameState.LOBBY && lobbyInfo.gameState !== GameState.LOBBY)) ? publobby.stateTime : Date.now();
 			let lobby: PublicLobby = {
 				id,
 				title: lobbyInfo.title?.substring(0, 20) ?? 'ERROR',
@@ -286,8 +300,10 @@ io.on('connection', (socket: socketIO.Socket) => {
 				max_players: lobbyInfo.max_players ?? 0,
 				language: lobbyInfo.language?.substring(0, 5) ?? '',
 				mods: lobbyInfo.mods?.substring(0, 20)?.toUpperCase() ?? '',
-				isPublic: lobbyInfo.isPublic,
+				isPublic: lobbyInfo.isPublic || lobbyInfo.isPublic2 ,
 				server: lobbyInfo.server,
+				gameState: lobbyInfo.gameState,
+				stateTime
 			};
 			lobbyCodes.set(id, c);
 			publicLobbies.set(c, lobby);
