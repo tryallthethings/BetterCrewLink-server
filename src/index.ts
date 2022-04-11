@@ -109,12 +109,12 @@ if (!hostname && peerConfig.integratedRelay.enabled) {
 }
 
 app.get('/', (req, res) => {
-	let address = req.protocol + '://' + req.host;
+	let address = req.protocol + '://' + req.hostname;
 	res.render('index', { connectionCount, address, lobbiesCount: allLobbies.size });
 });
 
 app.get('/health', (req, res) => {
-	let address = req.protocol + '://' + req.host;
+	let address = req.protocol + '://' + req.hostname;
 	res.json({
 		uptime: process.uptime(),
 		connectionCount,
