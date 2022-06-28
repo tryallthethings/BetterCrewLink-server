@@ -134,7 +134,7 @@ const leaveroom = (socket: socketIO.Socket, code: string) => {
 	if (!code) {
 		return;
 	}
-	if (code && code.length === 6) socket.leave(code);
+	if (code && (code.length === 6 || code.length === 4)) socket.leave(code);
 
 	if ((io.sockets.adapter.rooms[code]?.length ?? 0) <= 0) {
 		if (allLobbies.has(code)) {
@@ -170,8 +170,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 		if (
 			typeof c !== 'string' ||
 			typeof id !== 'number' ||
-			typeof clientId !== 'number' ||
-			!(c.length === 6 || c.length === 4)
+			typeof clientId !== 'number' 
 		) {
 			socket.disconnect();
 			logger.error(`Socket %s sent invalid join command: %s %d %d`, socket.id, c, id, clientId);
