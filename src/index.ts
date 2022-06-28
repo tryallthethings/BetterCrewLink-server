@@ -160,7 +160,7 @@ const leaveroom = (socket: socketIO.Socket, code: string) => {
 	if (!code) {
 		return;
 	}
-	if (code && code.length === 6) socket.leave(code);
+	if (code && code.length === 6 || code.length === 4) socket.leave(code);
 
 	if ((io.sockets.adapter.rooms[code]?.length ?? 0) <= 0) {
 		if (allLobbies.has(code)) {
@@ -190,7 +190,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 			credential: peerConfig.integratedRelay.defaultPassword,
 		});
 	}
-
+	logger.info("clientPeerConfig SEND");
 	socket.emit('clientPeerConfig', clientPeerConfig);
 
 	socket.on('join', (c: string, id: number, clientId: number) => {
@@ -280,18 +280,36 @@ io.on('connection', (socket: socketIO.Socket) => {
 		callbackFn(1, 'Lobby not found :C');
 	});
 
+
 	socket.on('lobby', (c: string, lobbyInfo: PublicLobby) => {
 		if (code != c) {
 			logger.error(`Got request to host lobby while not in it %s`, c, code);
 			return;
 		}
+		if (!isNaN(parseFloat(c)) && isFinite(Number(c))) {
+			return;
+		}
+
 		if (!lobbyInfo.isPublic && !lobbyInfo.isPublic2) {
 			removePublicLobby(c);
 		} else {
+			const servers: {
+				[server: string]: string;
+			} = {
+				'50.116.1.42': 'North America',
+				'172.105.251.170': 'Europe',
+				'139.162.111.196': 'Asia',
+				'161.35.248.138': 'Polus.gg NA (East)',
+				'164.90.246.64': 'Polus.gg NA (West)',
+				'138.68.119.239': 'Polus.gg Europe',
+				'192.241.154.115': 'skeld.net',
+			};
+
 			const publobby = publicLobbies.has(c) ? publicLobbies.get(c) : undefined;
 			const id = publobby ? publobby.id : lobbyCount++;
 			const stateTime = publobby && ((publobby.gameState === GameState.LOBBY && lobbyInfo.gameState === GameState.LOBBY) ||
 				(publobby.gameState !== GameState.LOBBY && lobbyInfo.gameState !== GameState.LOBBY)) ? publobby.stateTime : Date.now();
+			let mod = lobbyInfo.mods?.substring(0, 20)?.toUpperCase() ?? '';
 			let lobby: PublicLobby = {
 				id,
 				title: lobbyInfo.title?.substring(0, 20) ?? 'ERROR',
@@ -299,9 +317,9 @@ io.on('connection', (socket: socketIO.Socket) => {
 				current_players: lobbyInfo.current_players ?? 0,
 				max_players: lobbyInfo.max_players ?? 0,
 				language: lobbyInfo.language?.substring(0, 5) ?? '',
-				mods: lobbyInfo.mods?.substring(0, 20)?.toUpperCase() ?? '',
+				mods: mod,
 				isPublic: lobbyInfo.isPublic || lobbyInfo.isPublic2,
-				server: lobbyInfo.server,
+				server: "                " + lobbyInfo.server, //(mod === "POLUS_GG" || true)? "Region unkown.. \r\n (set it in title)" : lobbyInfo.server,
 				gameState: lobbyInfo.gameState,
 				stateTime
 			};
@@ -326,9 +344,11 @@ io.on('connection', (socket: socketIO.Socket) => {
 			return;
 		}
 		const { to, data } = signal;
+
 		io.to(to).emit('signal', {
 			data,
 			from: socket.id,
+			client: clients.get(socket.id)
 		});
 	});
 
