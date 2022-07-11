@@ -31,6 +31,8 @@
 ## Table of Contents
 
 * [About the Project](#about-the-project)
+* [Environment Variables](#environment-variables)
+* [Technical information](#technical-information)
 * [Deploy to Heroku](#deploy-to-heroku)
 * [Deploy to Repl.it](#deploy-to-replit)
 * [Docker Quickstart](#docker-quickstart)
@@ -39,6 +41,9 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
   * [Customizing Peer to Peer Behavior](#customizing-peer-to-peer-behavior)
+* [Connecting to your custom server](#connecting-to-your-custom-server)
+  * [Connecting via browser](#connecting-via-browser)
+  * [Connecting via BetterCrewLink application](#connecting-via-bettercrewlink-application)
 * [Contributing](#contributing)
   * [Contributors](#contributors)
 * [License](#license)
@@ -47,6 +52,10 @@
 ## About The Project
 
 This is the relay server for CrewLink, an Among Us proximity voice chat program. I am currently hosting a server at <a href="https://bettercrewl.ink">`https://bettercrewl.ink`</a>, but if you want to make your own server, feel free to open source the server.
+
+## Technical information
+Client-Server communication is running on top of http / https. This important if you're using the web browser client together with your custom server as both need to run with the same protocol (either http or https). If you, for example, spin up a docker container as detailed in the [Docker Quickstart](#docker-quickstart) and want to connect to it via web browser, you need to use the http version of the website. See [# Connecting to your custom server](#Connecting-to-your-custom-server) for details. 
+_Note:_ You can operate the server behind a proxy if you want to manage your SSL certificate outside of the container.
 
 ## Environment Variables
 
@@ -136,6 +145,24 @@ state data. As a fallback mechanism, CrewLink-server ships with an integrated TU
 directly connect to each other. You may want to customize this behavior to, for example, exclusively use the TURN relay
 to protect player IP addresses. To do so, head into the ``config`` folder and rename ``peerConfig.example.yml`` to
 ``peerConfig.yml`` and make the desired changes.
+
+## Connecting to your custom server
+If you want to connect to your custom server you need the hostname (FQDN) or IP address, the port you configured and the protocol you've used (http or https).
+### Connecting via browser
+__Without__ SSL / via http:
+  1. Visit <a href="http://web.bettercrewl.ink">`http://web.bettercrewl.ink`</a>
+  2. Select _custom server_ in Voice server
+  3. Enter your protocol (http), domain / ip and port i.e. http://custom-voice.mydomain.com:9736 or 123.123.123.123:9736
+
+__With__ SSL / via https: 
+  1. Visit <a href="https://web.bettercrewl.ink">`https://web.bettercrewl.ink`</a>
+  2. Select _custom server_ in Voice server
+  3. Enter your protocol (https), domain / ip and port i.e. https://custom-voice.mydomain.com:443 or 123.123.123.123:443
+  _Note:_ If you're running https on the default port (443), you can omit the port here.
+### Connecting via BetterCrewLink application
+  1. Open the settings (cogwheel in the top left corner)
+  2. Scroll down to the button _Change voice server_, 
+  3. Enter the same information as above in the browser example: http(s)://custom-voice.mydomain.com:(port) and confirm.
 
 <!-- CONTRIBUTING -->
 ## Contributing
